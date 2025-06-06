@@ -6,6 +6,7 @@ using UnityEngine.AI;
 public class CleaningRobot : MonoBehaviour
 {
     [Header(" Elements")]
+    public float stuckCheckTime = 10f;
     [SerializeField] private AudioSource robotSound;
     [SerializeField] private AudioSource completeSound;
     private NavMeshAgent agent;
@@ -14,6 +15,7 @@ public class CleaningRobot : MonoBehaviour
     private float tileSize = 3f; // element size in the grid
     private Vector2 gridStart; // start point
     private bool doneFlag =  false; //completing flag
+    private float lastMoveTime;
 
     private void Awake()
     {
@@ -23,6 +25,7 @@ public class CleaningRobot : MonoBehaviour
     {
         InitializeGrid();
         robotSound.Play();
+        lastMoveTime = Time.time;
         SetNextDestination();
     }
 
@@ -72,9 +75,10 @@ public class CleaningRobot : MonoBehaviour
     void Update()
     {
         //if reaching the target , then go to next
-        if (!agent.pathPending && agent.remainingDistance < 2f)
+        if ((!agent.pathPending && agent.remainingDistance < 0.5f) || (Time.time - lastMoveTime > stuckCheckTime))
         {
             SetNextDestination();
+            lastMoveTime = Time.time;
         }
     }
 
